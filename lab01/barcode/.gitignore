@@ -1,0 +1,4 @@
+*.o
+decbc
+encbc
+testbc
