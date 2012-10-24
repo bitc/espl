@@ -16,13 +16,13 @@ int main(int argc, char **argv) {
 			++n;
 			++c;
 		}
-		// Add space character between words
+		/* Add space character between words */
 		if(i!=argc-1) {
 			bc_char2bits(' ', barcode[n]);
 			++n;
 		}
 		if(n == BC_WIDTH) {
-			// Don't overflow
+			/* Don't overflow */
 			break;
 		}
 	}
