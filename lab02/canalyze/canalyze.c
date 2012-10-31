@@ -4,10 +4,10 @@
 
 void read_file(char *fname, struct namelist *namelist);
 int is_cname(char* name);
+int compare_namestat(const void *lhs, const void *rhs);
 
 int main(int argc, char **argv) {
 	int i;
-
 	struct namelist *namelist;
 
 	namelist = make_namelist();
@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 		read_file(argv[i], namelist);
 	}
 
-	/* TODO sort namelist */
+	qsort(namelist->names, namelist->size, sizeof(struct namestat), compare_namestat);
 
 	for(i = 0; i < namelist->size; ++i) {
 		printf("%s %d\n", namelist->names[i].name, namelist->names[i].count);
@@ -91,4 +91,10 @@ int is_cname(char* name) {
 	}
 
 	return 0;
+}
+
+int compare_namestat(const void *lhs, const void *rhs) {
+	return strcmp(
+			((struct namestat*)lhs)->name,
+			((struct namestat*)rhs)->name);
 }
