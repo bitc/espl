@@ -1,4 +1,4 @@
-all: testnl testfgn
+all: canalyze testnl testfgn
 
 test: testnl testfgn
 	./testnl
@@ -13,5 +13,9 @@ namelist.o: namelist.c namelist.h
 testfgn.o: testfgn.c fgetname.h
 fgetname.o: fgetname.c fgetname.h
 
+canalyze.o: canalyze.c fgetname.h namelist.h
+
+canalyze: canalyze.o fgetname.o namelist.o
+
 clean:
-	rm -f testnl testfgn *.o
+	rm -f canalyze testnl testfgn *.o
