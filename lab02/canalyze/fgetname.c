@@ -5,6 +5,7 @@
 #include "fgetname.h"
 
 int skip_string_literal(FILE* stream);
+int skip_comment(FILE* stream);
 
 char *fgetname(char *name, int size, FILE *stream) {
 	int ich;
@@ -15,6 +16,11 @@ char *fgetname(char *name, int size, FILE *stream) {
 	/** before a name */
 	for(;;) {
 		ch = fgetc(stream);
+		if(ch=='/') {
+			ch = fgetc(stream);
+			if(ch == '*')
+				ch = skip_comment(stream);
+		}
 		if(ch=='"')
 			ch = skip_string_literal(stream);
 		if(ch==EOF) /* end of stream or error before a name */
@@ -55,5 +61,19 @@ int skip_string_literal(FILE* stream) {
 			return EOF;
 		if(ch=='"')
 			return fgetc(stream);
+	}
+}
+
+int skip_comment(FILE* stream) {
+	char ch;
+	for(;;) {
+		ch = fgetc(stream);
+		while(ch=='*') {
+			ch = fgetc(stream);
+			if(ch=='/')
+				return fgetc(stream);
+		}
+		if(ch==EOF)
+			return EOF;
 	}
 }
