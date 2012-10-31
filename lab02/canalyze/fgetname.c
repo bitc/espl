@@ -4,6 +4,8 @@
 #include <assert.h>
 #include "fgetname.h"
 
+int skip_string_literal(FILE* stream);
+
 char *fgetname(char *name, int size, FILE *stream) {
 	int ich;
 	int ch;
@@ -13,6 +15,8 @@ char *fgetname(char *name, int size, FILE *stream) {
 	/** before a name */
 	for(;;) {
 		ch = fgetc(stream);
+		if(ch=='"')
+			ch = skip_string_literal(stream);
 		if(ch==EOF) /* end of stream or error before a name */
 			return NULL;
 		if(isalpha(ch) || ch=='_') /* a name begins */
@@ -40,4 +44,16 @@ char *fgetname(char *name, int size, FILE *stream) {
 
 	return name;
 }
-		
+
+int skip_string_literal(FILE* stream) {
+	/* This function does not correctly handle escape sequences */
+	char ch;
+
+	for(;;) {
+		ch = fgetc(stream);
+		if(ch==EOF)
+			return EOF;
+		if(ch=='"')
+			return fgetc(stream);
+	}
+}
