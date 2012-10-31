@@ -14,6 +14,7 @@ int main(int argc, char **argv) {
 	FILE* fp = fopen(argv[1], "r");
 	if(!fp) {
 		perror("Error opening file");
+		return 2;
 	}
 
 	long num_lines = get_lines(fp);
