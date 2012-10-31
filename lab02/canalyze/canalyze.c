@@ -15,7 +15,12 @@ int main(int argc, char **argv) {
 	for(i = 1; i < argc; ++i) {
 		read_file(argv[i], namelist);
 	}
-	/* TODO */
+
+	/* TODO sort namelist */
+
+	for(i = 0; i < namelist->size; ++i) {
+		printf("%s %d\n", namelist->names[i].name, namelist->names[i].count);
+	}
 
 	free(namelist->names);
 	free(namelist);
@@ -27,8 +32,6 @@ void read_file(char *fname, struct namelist *namelist) {
 	FILE *fp;
 	char name[NAMELEN];
 
-	printf("%s\n", fname);
-
 	fp = fopen(fname, "r");
 	if(!fp) {
 		perror("Error opening file");
@@ -37,10 +40,9 @@ void read_file(char *fname, struct namelist *namelist) {
 
 	while(fgetname(name, NAMELEN, fp)) {
 		if(!is_cname(name)) {
-			printf("%s ", name);
+			add_name(namelist, name);
 		}
 	}
-	printf("\n");
 
 	fclose(fp);
 }
