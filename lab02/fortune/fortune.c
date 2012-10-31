@@ -6,6 +6,7 @@
  
 long get_lines(FILE* fp);
 long random_number(long max);
+void print_line(FILE* fp, long line);
 
 /* print random line */
 int main(int argc, char **argv) {
@@ -22,15 +23,14 @@ int main(int argc, char **argv) {
 
 	long num_lines = get_lines(fp);
 
-	/* TODO This print is only temporary for testing */
-	printf("num lines in file: %lu\n", num_lines);
-
-
 	long random_line = random_number(num_lines);
 
-	printf("random line: %lu\n", random_line);
+	if(fseek(fp, 0, SEEK_SET)) {
+		perror("Error seeking file");
+	}
 
-	/* TODO Finish */
+	print_line(fp, random_line);
+
 	fclose(fp);
  
 	return 0;
@@ -53,5 +53,19 @@ long get_lines(FILE* fp) {
 long random_number(long max) {
 	srandom(time(0));
 
-	return random() % (max+1);
+	return random() % max;
+}
+
+void print_line(FILE* fp, long l) {
+	long i;
+
+	char line[MAX_LINE_LENGTH];
+	for(i = 0; i < l+1; ++i) {
+		if(!fgets(line, MAX_LINE_LENGTH, fp)) {
+			perror("Error reading file");
+			return;
+		}
+	}
+
+	printf("%lu: %s", l+1, line);
 }
