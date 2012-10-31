@@ -3,6 +3,7 @@
 #include "namelist.h"
 
 void read_file(char *fname, struct namelist *namelist);
+int is_cname(char* name);
 
 int main(int argc, char **argv) {
 	int i;
@@ -35,9 +36,57 @@ void read_file(char *fname, struct namelist *namelist) {
 	}
 
 	while(fgetname(name, NAMELEN, fp)) {
-		printf("%s ", name);
+		if(!is_cname(name)) {
+			printf("%s ", name);
+		}
 	}
 	printf("\n");
 
 	fclose(fp);
+}
+
+int is_cname(char* name) {
+	int i;
+	static char* reserved_words[] = {
+		"_Packed",
+		"auto",
+		"break",
+		"case",
+		"char",
+		"const",
+		"continue",
+		"default",
+		"do",
+		"double",
+		"else",
+		"enum",
+		"extern",
+		"float",
+		"for",
+		"goto",
+		"if",
+		"int",
+		"long",
+		"register",
+		"return",
+		"short",
+		"signed",
+		"sizeof",
+		"static",
+		"struct",
+		"switch",
+		"typedef",
+		"union",
+		"unsigned",
+		"void",
+		"volatile",
+		"while" };
+
+	for(i=0; i<sizeof(reserved_words)/sizeof(char*); ++i) {
+		if(strcmp(name, reserved_words[i]) == 0) {
+			return 1;
+		}
+	}
+
+	return 0;
 }
