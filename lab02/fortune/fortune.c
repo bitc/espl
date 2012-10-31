@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 
 /* Get the number of lines in a file */
 long get_lines(FILE* fp) {
-	int numlines;
+	long numlines;
 
 	numlines = 0;
 	char line[MAX_LINE_LENGTH];
