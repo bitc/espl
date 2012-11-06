@@ -15,6 +15,11 @@ int main(int argc, char **argv) {
 			bc_char2bits(*c, barcode[n]);
 			++n;
 			++c;
+			/* Check for overflow */
+			if(n == BC_WIDTH) {
+				i = argc-1; /* Make sure that a space is not added below */
+				break;
+			}
 		}
 		/* Add space character between words */
 		if(i!=argc-1) {
