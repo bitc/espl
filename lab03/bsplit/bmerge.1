@@ -1,0 +1,25 @@
+.TH "BMERGE" 1 2012 "Ben Gurion University of the Negev" "Extended System Programming Laboratory"
+.\" bmerge
+.SH NAME
+bmerge \- merge a binary file from several chunks
+.SH SYNOPSIS
+.LP
+\fBbmerge\fR [\fIOPTIONS\fR] \fIPREFIX\fR
+.SH DESCRIPTION
+.LP
+Merges chunks PREFIX.01, PREFIX.02, PREFIX.03, etc. into file PREFIX,
+using the first four bytes of each chunk as the XOR-based checksum
+to control the integrity.
+.SH OPTIONS
+.TP 12
+\fB-h\fR 
+print summary of options and exit
+.TP 12
+\fB-o\fR \fIOUTPUT\fR
+write the output into OUTPUT instead of PREFIX
+.TP 12
+\fB-x\fR \fICHECKSUM\fR
+verify that the checksum of the produced file is CHECKSUM
+.SH "SEE ALSO"
+.LP
+bsplit(1)
