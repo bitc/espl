@@ -54,7 +54,7 @@ uint32_t calculate_checksum(char* filename) {
 
 	FILE* fp = fopen(filename, "rb");
 	uint32_t checksum = 0;;
-	uint32_t word;
+	uint32_t word = 0;
 
 	if(!fp) {
 		perror("Error opening file");
