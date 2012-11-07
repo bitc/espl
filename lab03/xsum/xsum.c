@@ -50,8 +50,7 @@ void print_usage(void) {
 }
 
 uint32_t calculate_checksum(char* filename) {
-	/* Note: This function assumes a Little Endian architecture, and will
-	 * ignore bytes at the end of a file that don't fill a full word */
+	/* Note: This function assumes a Little Endian architecture */
 
 	FILE* fp = fopen(filename, "rb");
 	uint32_t checksum = 0;;
@@ -62,8 +61,9 @@ uint32_t calculate_checksum(char* filename) {
 		exit(EXIT_FAILURE);
 	}
 
-	while(fread(&word, sizeof(word), 1, fp)) {
+	while(fread(&word, 1, 4, fp)) {
 		checksum ^= word;
+		word = 0;
 	}
 
 	fclose(fp);
