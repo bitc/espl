@@ -1,0 +1,4 @@
+bmerge
+bsplit
+*.o
+*.man
