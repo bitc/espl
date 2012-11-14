@@ -69,7 +69,7 @@ void print_usage(void) {
 uint32_t split_file(char* filename, long chunk_size) {
 	FILE* fp;
 	int chunk_num = 1;
-	int global_checksum = 0;
+	uint32_t global_checksum = 0;
 	char chunk_fname[MAX_FILENAME_LENGTH];
 
 	fp = fopen(filename, "rb");
