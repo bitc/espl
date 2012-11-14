@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 #define DEFAULT_CHUNK_SIZE 32
-#define MIN_CHUNK_SIZE 5
+#define MIN_CHUNK_SIZE 8
 #define MAX_FILENAME_LENGTH 1024
 
 typedef unsigned int uint32_t;
@@ -26,6 +26,11 @@ int main(int argc, char **argv) {
 				chunk_size = strtol(optarg, 0, 10);
 				if(chunk_size < MIN_CHUNK_SIZE) {
 					printf("Chunk size must be at least %d bytes\n", MIN_CHUNK_SIZE);
+					print_usage();
+					exit(EXIT_FAILURE);
+				}
+				if(chunk_size % 4 != 0) {
+					printf("Chunk size must be a multiple of 4\n");
 					print_usage();
 					exit(EXIT_FAILURE);
 				}
