@@ -81,7 +81,7 @@ uint32_t split_file(char* filename, long chunk_size) {
 	while(!feof(fp)) {
 		int e = snprintf(chunk_fname, MAX_FILENAME_LENGTH, "%s.%02d", filename, chunk_num);
 		if(e < 0 || e >= MAX_FILENAME_LENGTH) {
-			printf("Filename is too long");
+			printf("Filename is too long\n");
 			exit(EXIT_FAILURE);
 		}
 		global_checksum ^= process_chunk(fp, chunk_size, chunk_fname);
