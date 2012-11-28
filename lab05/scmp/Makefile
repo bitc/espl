@@ -2,6 +2,9 @@
 
 all: scmp
 
+clean:
+	rm -f *.o scmp
+
 scmp: scmp.o cmpstr.o
 	gcc -m32 -o $@ $^
 
