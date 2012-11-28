@@ -9,7 +9,7 @@ loop:
 	movzx eax, BYTE [eax]
 	mov ebx, DWORD [ebp+12]
 	movzx ebx, BYTE [ebx]
-	cmp eax, 0
+	test eax, eax
 	je test
 	cmp eax, ebx
 	jne test
