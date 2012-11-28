@@ -11,5 +11,10 @@ scmp: scmp.o cmpstr.o
 scmp.o: scmp.c
 	gcc -m32 -o $@ -c $^
 
-cmpstr.o : cmpstr.c
-	gcc -m32 -o $@ -c $^
+# C implementation:
+#cmpstr.o : cmpstr.c
+#	gcc -m32 -o $@ -c $^
+
+# Assembly implementation:
+cmpstr.o : cmpstr.asm
+	nasm -g -f elf -o $@ $<
