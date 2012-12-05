@@ -10,7 +10,7 @@ typedef unsigned int uint32_t;
 
 void print_usage(void);
 uint32_t split_file(char* filename, long chunk_size);
-uint32_t process_chunk(FILE* input_fp, long chunk_size, char* chunk_filename);
+uint32_t process_chunk(int input_fd, long chunk_size, char* chunk_filename);
 
 int c_main(int argc, char **argv) {
 	char* optstring = "b:hx";
@@ -65,30 +65,33 @@ void print_usage(void) {
 	printf("usage: bsplit [-b SIZE] [-h] [-x] FILE\n");
 }
 
+int eof;
+
 /* Returns the checksum of the file */
 uint32_t split_file(char* filename, long chunk_size) {
-	FILE* fp;
+	int fd;
 	int chunk_num = 1;
 	uint32_t global_checksum = 0;
 	char chunk_fname[MAX_FILENAME_LENGTH];
 
-	fp = fopen(filename, "rb");
-	if(!fp) {
-		perror("Error opening file");
+	fd = open(filename, 0, 0666);
+	if(fd < 0) {
+		fprintf(stderr, "Error opening file");
 		exit(EXIT_FAILURE);
 	}
 
-	while(!feof(fp)) {
+	eof = 0;
+	while(!eof) {
 		int e = snprintf(chunk_fname, MAX_FILENAME_LENGTH, "%s.%02d", filename, chunk_num);
 		if(e < 0 || e >= MAX_FILENAME_LENGTH) {
 			printf("Filename is too long\n");
 			exit(EXIT_FAILURE);
 		}
-		global_checksum ^= process_chunk(fp, chunk_size, chunk_fname);
+		global_checksum ^= process_chunk(fd, chunk_size, chunk_fname);
 		++chunk_num;
 	}
 
-	fclose(fp);
+	close(fd);
 
 	return global_checksum;
 }
@@ -97,33 +100,34 @@ static size_t min(size_t a, size_t b) {
 	return a < b ? a : b;
 }
 
-uint32_t process_chunk(FILE* input_fp, long chunk_size, char* chunk_filename) {
-	FILE* chunk_fp;
+uint32_t process_chunk(int input_fd, long chunk_size, char* chunk_filename) {
+	int chunk_fd;
 	uint32_t checksum = 0;
 	uint32_t word;
 	long num_bytes = 4;
 
-	chunk_fp = fopen(chunk_filename, "wb");
-	if(!chunk_fp) {
-		perror("Error opening file");
+	chunk_fd = open(chunk_filename, 1|64|512, 0666);
+	if(chunk_fd < 0) {
+		fprintf(stderr, "Error opening output file");
 		exit(EXIT_FAILURE);
 	}
 
 	/* Write a placeholder at the beginning of the file to make room for
 	 * the checksum */
-	fwrite(&checksum, sizeof(checksum), 1, chunk_fp);
+	write(chunk_fd, &checksum, sizeof(checksum));
 
 	for(;;) {
 		size_t n;
 		word = 0;
-		n = fread(&word, 1, min(sizeof(word), chunk_size - num_bytes), input_fp);
-		fwrite(&word, 1, n, chunk_fp);
+		n = read(input_fd, &word, min(sizeof(word), chunk_size - num_bytes));
+		write(chunk_fd, &word, n);
 		num_bytes += n;
 
 		checksum ^= word;
 
 		/* End of input file */
 		if(n < sizeof(checksum)) {
+			eof = 1;
 			break;
 		}
 
@@ -134,10 +138,10 @@ uint32_t process_chunk(FILE* input_fp, long chunk_size, char* chunk_filename) {
 	}
 
 	/* Write the real checksum at the beginning of the file */
-	rewind(chunk_fp);
-	fwrite(&checksum, sizeof(checksum), 1, chunk_fp);
+	lseek(chunk_fd, 0, SEEK_SET);
+	write(chunk_fd, &checksum, sizeof(checksum));
 
-	fclose(chunk_fp);
+	close(chunk_fd);
 
 	return checksum;
 }
