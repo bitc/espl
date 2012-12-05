@@ -12,7 +12,7 @@ void print_usage(void);
 uint32_t split_file(char* filename, long chunk_size);
 uint32_t process_chunk(FILE* input_fp, long chunk_size, char* chunk_filename);
 
-int main(int argc, char **argv) {
+int c_main(int argc, char **argv) {
 	char* optstring = "b:hx";
 	long chunk_size = DEFAULT_CHUNK_SIZE;
 	int print_checksum = 0;
