@@ -38,12 +38,19 @@ open:
 	mov ebx, [esp+4]
 	mov ecx, [esp+8]
 	int 0x80
+	cmp eax, 0
+	jl error
 	ret
 close:
 	mov eax, 6
 	mov ebx, [esp+4]
 	int 0x80
 	ret
+
+error:
+	mov eax, -1
+	ret
+
 strlen:
 	push ebp
 	mov ebp, esp
