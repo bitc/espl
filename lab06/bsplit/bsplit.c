@@ -96,7 +96,7 @@ uint32_t split_file(char* filename, long chunk_size) {
 	return global_checksum;
 }
 
-uint32_t process_chunk(int input_fd, long chunk_size, char* chunk_filename) {
+uint32_t c__process_chunk(int input_fd, long chunk_size, char* chunk_filename) {
 	int chunk_fd;
 	uint32_t checksum = 0;
 	uint32_t word;
