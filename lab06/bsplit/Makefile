@@ -6,15 +6,14 @@
 
 all: bsplit bmerge bsplit.man bmerge.man
 
-bsplit: bsplit.o xsum.o
+bsplit: bsplit.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
-bmerge: bmerge.o xsum.o
+bmerge: bmerge.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
-bsplit.o: bsplit.c xsum.h
-bmerge.o: bmerge.c xsum.h
-xsum.o: xsum.c xsum.h
+bsplit.o: bsplit.c
+bmerge.o: bmerge.c
 
 clean:
 	rm -f *.o 
