@@ -1,0 +1,25 @@
+.TH "BSPLIT" 1 2012 "Ben Gurion University of the Negev" "Extended System Programming Laboratory"
+.\" bsplit
+.SH NAME
+bsplit \- split a binary file into several chunks
+.SH SYNOPSIS
+.LP
+\fBbsplit\fR [\fIOPTIONS\fR] \fIFILE\fR
+.SH DESCRIPTION
+.LP
+Splits FILE into several chunks of at most the specified size
+FILE.01, FILE.02, FILE.03 etc. Prepends each chunk with the
+four-byte XOR-based checksum for integrity control.
+.SH OPTIONS
+.TP 12
+\fB-b\fR \fISIZE\fR
+put at most SIZE bytes per output file
+.TP 12
+\fB-h\fR 
+print summary of options and exit
+.TP 12
+\fB-x\fR
+print the checksum of FILE on the standard output
+.SH "SEE ALSO"
+.LP
+bmerge(1)
