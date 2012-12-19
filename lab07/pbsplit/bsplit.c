@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 }
 
 void print_usage(void) {
-	printf("usage: bsplit [-b SIZE] [-h] [-x] FILE\n");
+	printf("usage: pbsplit [-b SIZE] [-h] [-x] FILE\n");
 }
 
 /* Returns the checksum of the file */
