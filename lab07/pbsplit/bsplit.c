@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #define DEFAULT_CHUNK_SIZE 32
 #define MIN_CHUNK_SIZE 8
 #define MAX_FILENAME_LENGTH 1024
+#define MAX_ALLOWED_CHILDREN 128
 
 typedef unsigned int uint32_t;
 
 void print_usage(void);
+long get_file_size(char* filename);
 uint32_t split_file(char* filename, long chunk_size);
 uint32_t process_chunk(FILE* input_fp, long chunk_size, char* chunk_filename);
 
@@ -73,6 +76,12 @@ void print_usage(void) {
 	printf("usage: pbsplit [-b SIZE] [-h] [-x] FILE\n");
 }
 
+long get_file_size(char* filename) {
+	struct stat buf;
+	stat(filename, &buf);
+	return buf.st_size;
+}
+
 /* Returns the checksum of the file */
 uint32_t split_file(char* filename, long chunk_size) {
 	FILE* fp;
@@ -80,23 +89,50 @@ uint32_t split_file(char* filename, long chunk_size) {
 	uint32_t global_checksum = 0;
 	char chunk_fname[MAX_FILENAME_LENGTH];
 
+	long filesize = get_file_size(filename);
+	long num_chunks = (filesize + chunk_size - 1) / chunk_size;
+
+	pid_t children[MAX_ALLOWED_CHILDREN];
+
 	fp = fopen(filename, "rb");
 	if(!fp) {
 		perror("Error opening file");
 		exit(EXIT_FAILURE);
 	}
 
-	while(!feof(fp)) {
-		int e = snprintf(chunk_fname, MAX_FILENAME_LENGTH, "%s.%02d", filename, chunk_num);
-		if(e < 0 || e >= MAX_FILENAME_LENGTH) {
-			printf("Filename is too long\n");
+	int my_chunk = 0;
+	while(my_chunk < num_chunks)
+	{
+		pid_t child;
+		child = fork();
+		if(child == -1)
+		{
+			perror("Error forking child");
 			exit(EXIT_FAILURE);
 		}
-		global_checksum ^= process_chunk(fp, chunk_size, chunk_fname);
-		++chunk_num;
+		else if(child == 0)
+		{
+			/* Child */
+			int e = snprintf(chunk_fname, MAX_FILENAME_LENGTH, "%s.%02d", filename, chunk_num);
+			if(e < 0 || e >= MAX_FILENAME_LENGTH) {
+				printf("Filename is too long\n");
+				exit(EXIT_FAILURE);
+			}
+			fseek(fp, my_chunk * chunk_size, SEEK_SET);
+			process_chunk(fp, chunk_size, chunk_fname);
+			fclose(fp);
+			exit(0);
+		}
+		/* Parent */
+		children[my_chunk] = child;
+		my_chunk++;
 	}
 
 	fclose(fp);
+
+	for(my_chunk = 0; my_chunk < num_chunks; ++my_chunk) {
+		waitpid(children[my_chunk]
+	}
 
 	return global_checksum;
 }
