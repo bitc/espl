@@ -13,9 +13,10 @@ uint32_t split_file(char* filename, long chunk_size);
 uint32_t process_chunk(FILE* input_fp, long chunk_size, char* chunk_filename);
 
 int main(int argc, char **argv) {
-	char* optstring = "b:hx";
+	char* optstring = "b:hxp:";
 	long chunk_size = DEFAULT_CHUNK_SIZE;
 	int print_checksum = 0;
+	int max_child_processes = 0;
 	char* inputfile;
 	int opt;
 	size_t checksum;
@@ -38,6 +39,13 @@ int main(int argc, char **argv) {
 			case 'x':
 				print_checksum = 1;
 				break;
+			case 'p':
+				max_child_processes = strtol(optarg, 0, 10);
+				if(max_child_processes < 1) {
+					printf("maximum number of child processes must be at least 1\n");
+					print_usage();
+					exit(EXIT_FAILURE);
+				}
 			case 'h':
 			case '?':
 				print_usage();
