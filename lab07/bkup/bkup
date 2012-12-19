@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+if [ $# -ne 2 ]; then
+	echo "Usage: $0 FILE NCOPIES"
+	exit 1
+fi
+
+file=$1
+ncopies=$2
+
+latest=$(( $ncopies - 1 ))
+
+for i in $(seq $latest -1 1); do
+	mv $file.$i $file.$(( $i + 1 ))
+done
+
+cp $file $file.1
