@@ -85,22 +85,14 @@ long get_file_size(char* filename) {
 /* Returns the checksum of the file */
 uint32_t split_file(char* filename, long chunk_size) {
 	FILE* fp;
-	int chunk_num = 1;
 	uint32_t global_checksum = 0;
 	char chunk_fname[MAX_FILENAME_LENGTH];
 
 	long filesize = get_file_size(filename);
-	long num_chunks = (filesize + chunk_size - 1) / chunk_size;
-
-	pid_t children[MAX_ALLOWED_CHILDREN];
-
-	fp = fopen(filename, "rb");
-	if(!fp) {
-		perror("Error opening file");
-		exit(EXIT_FAILURE);
-	}
+	long num_chunks = (filesize + (chunk_size-4) - 1) / (chunk_size-4);
 
 	int my_chunk = 0;
+
 	while(my_chunk < num_chunks)
 	{
 		pid_t child;
@@ -113,25 +105,35 @@ uint32_t split_file(char* filename, long chunk_size) {
 		else if(child == 0)
 		{
 			/* Child */
-			int e = snprintf(chunk_fname, MAX_FILENAME_LENGTH, "%s.%02d", filename, chunk_num);
+			int e = snprintf(chunk_fname, MAX_FILENAME_LENGTH, "%s.%02d", filename, my_chunk+1);
+
 			if(e < 0 || e >= MAX_FILENAME_LENGTH) {
 				printf("Filename is too long\n");
 				exit(EXIT_FAILURE);
 			}
-			fseek(fp, my_chunk * chunk_size, SEEK_SET);
+
+			fp = fopen(filename, "rb");
+			if(!fp) {
+				perror("Error opening file");
+				exit(EXIT_FAILURE);
+			}
+
+			if(fseek(fp, my_chunk * chunk_size, SEEK_SET) == -1) {
+				perror("Error seeking");
+				exit(EXIT_FAILURE);
+			}
 			process_chunk(fp, chunk_size, chunk_fname);
 			fclose(fp);
 			exit(0);
 		}
 		/* Parent */
-		children[my_chunk] = child;
 		my_chunk++;
 	}
 
-	fclose(fp);
-
 	for(my_chunk = 0; my_chunk < num_chunks; ++my_chunk) {
-		waitpid(children[my_chunk]
+		if(wait(0) == -1) {
+			perror("Error waiting for child");
+		}
 	}
 
 	return global_checksum;
