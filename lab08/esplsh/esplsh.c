@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define BUF_LEN 1024
 static char command[BUF_LEN+1];
@@ -105,6 +107,29 @@ void run_program() {
     sprintf(ststr, "%d", status);
     setenv("?", ststr, 1);
   } else if(pid==0) {
+    if(argc >= 3) {
+      char* operator = argv[argc-2];
+      if(strcmp(operator, ">") == 0) {
+        int fd = open(argv[argc-1], O_WRONLY|O_CREAT|O_TRUNC, 0644);
+        if(fd < 0) {
+          perror("Error opening output file");
+          return;
+        }
+        dup2(fd, 1);
+        close(fd);
+        argv[argc-2] = 0;
+      }
+      else if(strcmp(operator, "<") == 0) {
+        int fd = open(argv[argc-1], O_RDONLY);
+        if(fd < 0) {
+          perror("Error opening input file");
+          return;
+        }
+        dup2(fd, 0);
+        close(fd);
+        argv[argc-2] = 0;
+      }
+    }
     execvp(argv[0], argv);
     perror(argv[0]);
   } else {
