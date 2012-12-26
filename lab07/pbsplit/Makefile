@@ -1,12 +1,12 @@
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-all: bsplit
+all: pbsplit
 
-bsplit: bsplit.o
+pbsplit: pbsplit.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
-bsplit.o: bsplit.c
+pbsplit.o: pbsplit.c
 
 clean:
 	rm -f *.o 
