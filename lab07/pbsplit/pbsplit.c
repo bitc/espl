@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 #define DEFAULT_CHUNK_SIZE 32
 #define MIN_CHUNK_SIZE 8
@@ -12,14 +13,14 @@ typedef unsigned int uint32_t;
 
 void print_usage(void);
 long get_file_size(char* filename);
-uint32_t split_file(char* filename, long chunk_size);
+uint32_t split_file(char* filename, long chunk_size, int max_child_processes);
 uint32_t process_chunk(FILE* input_fp, long chunk_size, char* chunk_filename);
 
 int main(int argc, char **argv) {
 	char* optstring = "b:hxp:";
 	long chunk_size = DEFAULT_CHUNK_SIZE;
 	int print_checksum = 0;
-	int max_child_processes = 0;
+	int max_child_processes = INT_MAX;
 	char* inputfile;
 	int opt;
 	size_t checksum;
@@ -49,6 +50,7 @@ int main(int argc, char **argv) {
 					print_usage();
 					exit(EXIT_FAILURE);
 				}
+				break;
 			case 'h':
 			case '?':
 				print_usage();
@@ -63,7 +65,7 @@ int main(int argc, char **argv) {
 
 	inputfile = argv[optind];
 
-	checksum = split_file(inputfile, chunk_size);
+	checksum = split_file(inputfile, chunk_size, max_child_processes);
 
 	if(print_checksum) {
 		printf("%lu\n", (unsigned long)checksum);
@@ -73,7 +75,7 @@ int main(int argc, char **argv) {
 }
 
 void print_usage(void) {
-	printf("usage: pbsplit [-b SIZE] [-h] [-x] FILE\n");
+	printf("usage: pbsplit [-b SIZE] [-h] [-x] [-p NUM] FILE\n");
 }
 
 long get_file_size(char* filename) {
@@ -83,7 +85,7 @@ long get_file_size(char* filename) {
 }
 
 /* Returns the checksum of the file */
-uint32_t split_file(char* filename, long chunk_size) {
+uint32_t split_file(char* filename, long chunk_size, int max_child_processes) {
 	FILE* fp;
 	uint32_t global_checksum = 0;
 	char chunk_fname[MAX_FILENAME_LENGTH];
@@ -92,9 +94,16 @@ uint32_t split_file(char* filename, long chunk_size) {
 	long num_chunks = (filesize + (chunk_size-4) - 1) / (chunk_size-4);
 
 	int my_chunk = 0;
+	int num_active_children = 0;
 
 	while(my_chunk < num_chunks)
 	{
+		while(num_active_children >= max_child_processes) {
+			if(wait(0) == -1) {
+				perror("Error waiting for child to finish");
+			}
+			num_active_children--;
+		}
 		pid_t child;
 		child = fork();
 		if(child == -1)
@@ -127,10 +136,11 @@ uint32_t split_file(char* filename, long chunk_size) {
 			exit(0);
 		}
 		/* Parent */
+		num_active_children++;
 		my_chunk++;
 	}
 
-	for(my_chunk = 0; my_chunk < num_chunks; ++my_chunk) {
+	for(my_chunk = 0; my_chunk < num_active_children; ++my_chunk) {
 		if(wait(0) == -1) {
 			perror("Error waiting for child");
 		}
