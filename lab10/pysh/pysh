@@ -15,8 +15,20 @@ def getcwd():
 def run_cmd(argv):
     out_file = None
     in_file = None
+    run_in_background = False
     try:
         cmd_args = argv
+        try:
+            run_in_background_index = argv.index('&')
+            if run_in_background_index == 0:
+                print 'Syntax error in background command'
+                return
+            cmd_args = cmd_args[:run_in_background_index]
+            run_in_background = True
+        except ValueError:
+            # Not running in background
+            pass
+
         try:
             out_redirect_index = argv.index('>')
             out_file = open(argv[out_redirect_index+1], 'w')
@@ -40,7 +52,9 @@ def run_cmd(argv):
             return
 
         try:
-            subprocess.call(cmd_args, stdin=in_file, stdout=out_file)
+            process = subprocess.Popen(cmd_args, stdin=in_file, stdout=out_file)
+            if not run_in_background:
+                process.wait()
         except OSError:
             print 'Error running command'
     finally:
