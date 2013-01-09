@@ -13,7 +13,41 @@ def getcwd():
     return cwd
 
 def run_cmd(argv):
-    subprocess.call(argv)
+    out_file = None
+    in_file = None
+    try:
+        cmd_args = argv
+        try:
+            out_redirect_index = argv.index('>')
+            out_file = open(argv[out_redirect_index+1], 'w')
+            cmd_args = cmd_args[:out_redirect_index]
+        except ValueError:
+            # No output redirection
+            pass
+        except IndexError:
+            print 'Syntax error in output redirection'
+            return
+
+        try:
+            in_redirect_index = argv.index('<')
+            in_file = open(argv[in_redirect_index+1], 'r')
+            cmd_args = cmd_args[:in_redirect_index]
+        except ValueError:
+            # No input redirection
+            pass
+        except IndexError:
+            print 'Syntax error in input redirection'
+            return
+
+        try:
+            subprocess.call(cmd_args, stdin=in_file, stdout=out_file)
+        except OSError:
+            print 'Error running command'
+    finally:
+        if in_file:
+            in_file.close()
+        if out_file:
+            out_file.close()
 
 while True:
     print "%s@%s>" % (getpass.getuser(), getcwd()),
