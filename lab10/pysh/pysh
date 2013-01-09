@@ -72,6 +72,12 @@ def expand_vars(argv):
 
     return map(expand, argv)
 
+def process_set_var(cmd):
+    equals_index = cmd.index('=')
+    var_name = cmd[:equals_index]
+    var_value = cmd[equals_index+1:]
+    os.environ[var_name] = var_value
+
 while True:
     print "%s@%s>" % (getpass.getuser(), getcwd()),
 
@@ -95,7 +101,11 @@ while True:
         except OSError, s:
             print >>sys.stderr, "chdir: %s" % s
     else:
-        run_cmd(expand_vars(argv))
+        expanded_vars = expand_vars(argv)
+        if '=' in expanded_vars[0]:
+            process_set_var(expanded_vars[0])
+        else:
+            run_cmd(expanded_vars)
 
 # goodbye message
 goodbye = "have a good sunny day, see you back soon"
