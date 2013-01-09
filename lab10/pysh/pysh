@@ -63,6 +63,15 @@ def run_cmd(argv):
         if out_file:
             out_file.close()
 
+def expand_vars(argv):
+    def expand(arg):
+        if arg[:1] == '$':
+            return os.getenv(arg[1:], '')
+        else:
+            return arg
+
+    return map(expand, argv)
+
 while True:
     print "%s@%s>" % (getpass.getuser(), getcwd()),
 
@@ -86,7 +95,7 @@ while True:
         except OSError, s:
             print >>sys.stderr, "chdir: %s" % s
     else:
-        run_cmd(argv)
+        run_cmd(expand_vars(argv))
 
 # goodbye message
 goodbye = "have a good sunny day, see you back soon"
