@@ -78,6 +78,20 @@ def process_set_var(cmd):
     var_value = cmd[equals_index+1:]
     os.environ[var_name] = var_value
 
+def run_pipe(argv):
+    pipe_index = argv.index('|')
+    argv1 = argv[:pipe_index]
+    argv2 = argv[pipe_index+1:]
+    if not argv1 or not argv2:
+        print 'Syntax error in pipe'
+        return
+    # Reference: <http://docs.python.org/2/library/subprocess.html#replacing-shell-pipeline>
+    p1 = subprocess.Popen(argv1, stdout=subprocess.PIPE)
+    p2 = subprocess.Popen(argv2, stdin=p1.stdout, stdout=subprocess.PIPE)
+    p1.stdout.close()
+    output = p2.communicate()[0]
+    print output
+
 while True:
     print "%s@%s>" % (getpass.getuser(), getcwd()),
 
@@ -104,6 +118,8 @@ while True:
         expanded_vars = expand_vars(argv)
         if '=' in expanded_vars[0]:
             process_set_var(expanded_vars[0])
+        elif '|' in expanded_vars:
+            run_pipe(expanded_vars)
         else:
             run_cmd(expanded_vars)
 
