@@ -12,6 +12,31 @@ window.onload = function() {
         elem.appendChild(elem.ownerDocument.createTextNode(text));
     }
 
+    function showHint(str) {
+        var xmlhttp;
+        if (str.length === 0) {
+            document.getElementById("txtHint").innerHTML = "";
+            return;
+        }
+        if (window.XMLHttpRequest){ // IE7+,Firefox,Chrome,Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        }
+        else{ // code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status === 200){
+                document.getElementById("txtHint").innerHTML = xmlhttp.responseText;
+            }
+        }
+        xmlhttp.open("GET","http://www.cs.bgu.ac.il/~abedas/remote_service.php?q="+str, true);
+        xmlhttp.send();
+    }
+
+    document.getElementById('id_username').onkeyup = function(e) {
+        showHint(document.getElementById('id_username').value);
+    }
+
     document.getElementById('id_login_form').onsubmit = function(e) {
         function field_nonempty(id, name) {
             if (document.getElementById(id).value.length === 0) {

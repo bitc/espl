@@ -11,6 +11,11 @@ color: blue;
 font-weight: bold;
 }
 
+.suggestion_box {
+width: 574px;
+float: right;
+}
+
 h1 {
 color: #008;
 text-decoration: underline;
