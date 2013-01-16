@@ -5,8 +5,14 @@ window.onload = function() {
         return !(e.keyCode >= KEYCODE_0 && e.keyCode <= KEYCODE_9);
     }
 
+    function replace_text(elem, text) {
+        while(elem.childNodes.length >= 1) {
+            elem.removeChild(elem.firstChild);
+        }
+        elem.appendChild(elem.ownerDocument.createTextNode(text));
+    }
+
     document.getElementById('id_login_form').onsubmit = function(e) {
-        console.log(e);
         function field_nonempty(id, name) {
             if (document.getElementById(id).value.length === 0) {
                 alert('You must enter a ' + name);
@@ -27,11 +33,13 @@ window.onload = function() {
             return false;
         }
 
-        if (document.getElementById('id_password').value.length < 4)
+        if (document.getElementById('id_password').value.length < 4) {
             alert('The password must contain at least 4 characters');
             return false;
         }
 
-        return true;
+        replace_text(document.getElementById('id_user_text'), 'You are logged in as ' + document.getElementById('id_username').value);
+
+        return false;
     }
 }
