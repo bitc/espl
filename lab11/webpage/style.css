@@ -1,0 +1,46 @@
+body {
+background: #c6bfad;
+}
+
+form {
+text-align: right;
+}
+
+form label {
+color: blue;
+font-weight: bold;
+}
+
+h1 {
+color: #008;
+text-decoration: underline;
+}
+
+.figure {
+float: right;
+margin-bottom: 40px;
+}
+
+hr {
+clear: both;
+}
+
+.amuzement p {
+text-align: center;
+margin-left: auto;
+margin-right: auto;
+color: red;
+font-weight: bold;
+font-size: 18px;
+width: 200px;
+}
+
+.amuzement img {
+margin-left: auto;
+margin-right: auto;
+display: block;
+}
+
+.amuzement img:hover {
+opacity: 0;
+}
