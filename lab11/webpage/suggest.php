@@ -36,8 +36,22 @@ $a[]="Vicky";
 //get the q parameter from URL
 $q=$_GET["q"];
 
-//TODO: lookup all hints from our simple "data base"
-
+$first = TRUE;
+foreach ($a as $value)
+  {
+  if(!strncmp(strtolower($value), strtolower($q), strlen($q)))
+    {
+    if($first)
+      {
+      $hint = $value;
+      $first = FALSE;
+      }
+    else
+      {
+      $hint .= ', ' . $value;
+      }
+    }
+  }
 
 // Set output to "no suggestion" if no hint were found
 // or to the correct values
